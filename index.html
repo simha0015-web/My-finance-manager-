@@ -399,7 +399,7 @@ th,td{padding:8px 6px;border-bottom:1px solid #eee;text-align:left;vertical-alig
   </div>
 </div>
 
-<!-- MODAL: ADD / EDIT INCOME -->
+<!-- MODAL: ADD / EDIT INCOME (MANUAL INPUT FOR SOURCE/TYPE) -->
 <div id="salaryModal" class="modal">
   <div class="modalbox">
     <h3 id="salaryModalTitle">💵 Record Income (ఆదాయం నమోదు)</h3>
@@ -407,13 +407,7 @@ th,td{padding:8px 6px;border-bottom:1px solid #eee;text-align:left;vertical-alig
     <label class="muted">తేదీ (Date Credited):</label>
     <input id="sDate" type="date">
     <label class="muted">ఆదాయ వనరు (Source / Type):</label>
-    <select id="sSourceSelect" onchange="onIncomeSourceSelectChange()">
-      <option value="Kia Salary">Kia Salary</option>
-      <option value="Aeromax salary">Aeromax salary</option>
-      <option value="Daily wages">Daily wages</option>
-      <option value="Other">ఇతర ఆదాయం (Custom Other)...</option>
-    </select>
-    <input id="sSourceCustom" placeholder="ఉదా: Real Estate Commission, Freelance" style="display:none;margin-top:6px;">
+    <input id="sSource" type="text" placeholder="ఉదా: Kia Salary, Fruit Sales, Bike Commission">
     <label class="muted">మొత్తం ఆదాయం (Amount):</label>
     <input id="sAmount" type="number" placeholder="ఉదా: 19400">
     <label class="muted">అదనపు వివరాలు (Note):</label>
@@ -670,11 +664,6 @@ function closeModal(id) {
   document.getElementById(id).style.display = "none";
 }
 
-function onIncomeSourceSelectChange() {
-  let val = document.getElementById("sSourceSelect").value;
-  document.getElementById("sSourceCustom").style.display = (val === "Other") ? "block" : "none";
-}
-
 function populateSelects() {
   document.getElementById("pLoan").innerHTML = data.loans.map((l, i) => `<option value="${i}">${l.name}</option>`).join("");
 }
@@ -873,14 +862,12 @@ function renderLoans() {
   }).join("") || '<div class="card">ప్రస్తుతం ఏ లోన్స్ లేవు.</div>';
 }
 
-/* ================= INCOME / SALARY CRUD ================= */
+/* ================= INCOME / SALARY CRUD (MANUAL TEXT ENTRY) ================= */
 function openAddSalaryModal() {
   document.getElementById("salaryModalTitle").innerText = "💵 Record Income (ఆదాయం నమోదు)";
   document.getElementById("editSalaryIndex").value = "-1";
   document.getElementById("sDate").value = iso;
-  document.getElementById("sSourceSelect").value = "Kia Salary";
-  document.getElementById("sSourceCustom").value = "";
-  document.getElementById("sSourceCustom").style.display = "none";
+  document.getElementById("sSource").value = "";
   document.getElementById("sAmount").value = "";
   document.getElementById("sNote").value = "";
   openModal('salaryModal');
@@ -891,29 +878,18 @@ function editSalary(i) {
   document.getElementById("salaryModalTitle").innerText = "✏️ Edit Income (ఆదాయం మార్చండి)";
   document.getElementById("editSalaryIndex").value = i;
   document.getElementById("sDate").value = s.date || iso;
+  document.getElementById("sSource").value = s.source || "";
   document.getElementById("sAmount").value = s.amount || "";
   document.getElementById("sNote").value = s.note || "";
-
-  let stdSources = ["Kia Salary", "Fruit Sales", "Bike Sales Commission"];
-  if (stdSources.includes(s.source)) {
-    document.getElementById("sSourceSelect").value = s.source;
-    document.getElementById("sSourceCustom").style.display = "none";
-  } else {
-    document.getElementById("sSourceSelect").value = "Other";
-    document.getElementById("sSourceCustom").value = s.source || "";
-    document.getElementById("sSourceCustom").style.display = "block";
-  }
   openModal('salaryModal');
 }
 
 function saveSalary() {
+  let sourceVal = document.getElementById("sSource").value.trim();
   let a = Number(document.getElementById("sAmount").value);
-  if (!a) return alert("ఆదాయం మొత్తం నమోదు చేయండి");
 
-  let sourceVal = document.getElementById("sSourceSelect").value;
-  if (sourceVal === "Other") {
-    sourceVal = document.getElementById("sSourceCustom").value.trim() || "Other Income";
-  }
+  if (!sourceVal) return alert("దయచేసి ఆదాయ వనరు (Source / Type) నమోదు చేయండి");
+  if (!a) return alert("ఆదాయం మొత్తం నమోదు చేయండి");
 
   let editIdx = parseInt(document.getElementById("editSalaryIndex").value);
   let obj = {
@@ -1257,7 +1233,7 @@ function onReportCategoryChanged() {
   else if (cat === "incomes") {
     box.style.display = "block";
     lbl.textContent = "నిర్దిష్ట ఆదాయం (Select Income Source):";
-    let sources = Array.from(new Set(data.salaries.map(s => s.source || s.note || "Kia Salary")));
+    let sources = Array.from(new Set(data.salaries.map(s => s.source || s.note || "Salary")));
     sel.innerHTML = `<option value="all">అన్ని ఆదాయాలు (All Incomes)</option>` + 
       sources.map(src => `<option value="${src}">${src}</option>`).join("");
   }
@@ -1302,7 +1278,7 @@ function renderReport() {
   if (cat === "incomes") {
     let sals = data.salaries.filter(s => s.date.startsWith(filterStr));
     if (subChoice !== "all") {
-      sals = sals.filter(s => (s.source || s.note || "Kia Salary") === subChoice);
+      sals = sals.filter(s => (s.source || s.note || "Salary") === subChoice);
     }
     sals.sort((a,b)=>b.date.localeCompare(a.date));
     let totalSal = sals.reduce((sum, s) => sum + Number(s.amount), 0);
