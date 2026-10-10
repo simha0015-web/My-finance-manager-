@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>My Finance Manager v2 - Full Edit & Manual Close</title>
+<title>My Finance Manager v2</title>
 <!-- App Icon Favicon -->
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%231565c0'/><circle cx='256' cy='245' r='95' fill='%23ffb300'/><text x='50%25' y='59%25' font-size='110' text-anchor='middle' fill='%230d47a1' font-family='sans-serif' font-weight='bold'>₹</text></svg>">
 <style>
@@ -49,12 +49,12 @@ button.secondary{background:#607d8b}
 button.danger{background:#d32f2f}
 button.greenbtn{background:#2e7d32}
 button.editbtn{background:#ff9800;color:#fff}
-button.closebtn{background:#00897b}
 button.githubbtn{background:#24292e}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th,td{padding:8px 6px;border-bottom:1px solid #eee;text-align:left;vertical-align:middle}
 .scroll{overflow-x:auto}
-.badge{display:inline-block;padding:4px 8px;border-radius:15px;background:#e3f2fd;color:#1565c0;font-size:12px;font-weight:bold;cursor:pointer}
+.badge{display:inline-block;padding:5px 10px;border-radius:15px;background:#e3f2fd;color:#1565c0;font-size:12px;font-weight:bold;cursor:pointer;user-select:none;-webkit-user-select:none}
+.badge:hover{opacity:.85}
 .badge-pending{background:#ffebee;color:#c62828}
 .badge-paid{background:#e8f5e9;color:#2e7d32}
 .progress{height:12px;background:#ddd;border-radius:20px;overflow:hidden;margin:8px 0}
@@ -322,7 +322,7 @@ th,td{padding:8px 6px;border-bottom:1px solid #eee;text-align:left;vertical-alig
   </main>
 </div>
 
-<!-- ==================== MODALS WITH EDIT SUPPORT ==================== -->
+<!-- ==================== MODALS ==================== -->
 
 <!-- MODAL: ADD / EDIT HAND LOAN -->
 <div id="handLoanModal" class="modal">
@@ -767,7 +767,7 @@ function totalLossAll() {
   return data.loans.reduce((acc, l, i) => acc + getLoanDetails(i).totalLoss, 0);
 }
 
-/* ================= LOAN ACTIONS & MANUAL CLOSE ================= */
+/* ================= LOAN ACTIONS ================= */
 function openAddLoanModal() {
   document.getElementById("loanModalTitle").innerText = "➕ Add Bank Loan";
   document.getElementById("editLoanIndex").value = "-1";
@@ -866,9 +866,6 @@ function renderLoans() {
       </table>
 
       <div class="row" style="margin-top:12px;">
-        <button class="${d.isClosed ? 'secondary' : 'closebtn'}" onclick="toggleLoanStatus(${i})">
-          ${d.isClosed ? '🔄 రీ-ఓపెన్ చేయి (Reopen)' : '🔒 లోన్ క్లోజ్ చేయి (Close)'}
-        </button>
         <button class="editbtn" onclick="editLoan(${i})">✏️ Edit</button>
         <button class="danger" onclick="del('loan',${i})">🗑️ Delete</button>
       </div>
@@ -1194,7 +1191,7 @@ function renderHandLoans() {
     <div class="card" style="border-left: 5px solid ${isBorrowed ? '#d32f2f' : '#2e7d32'};">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <h3 style="margin:0;">${h.person}</h3>
-        <span class="badge ${h.settled ? 'badge-paid' : 'badge-pending'}" onclick="toggleHandLoanSettled(${idx})">
+        <span class="badge ${h.settled ? 'badge-paid' : 'badge-pending'}" onclick="toggleHandLoanSettled(${idx})" title="క్లిక్ చేసి స్టేటస్ మార్చండి">
           ${h.settled ? '✅ క్లియర్ అయింది' : '⏳ బాకీ ఉంది'}
         </span>
       </div>
@@ -1205,9 +1202,6 @@ function renderHandLoans() {
         <tr><td>వివరణ:</td><td>${h.note || "-"}</td></tr>
       </table>
       <div class="row" style="margin-top:10px;">
-        <button class="${h.settled ? 'secondary' : 'closebtn'}" onclick="toggleHandLoanSettled(${idx})">
-          ${h.settled ? 'తిరిగి బాకీగా పెట్టు' : 'లెక్క క్లియర్ (Settle)'}
-        </button>
         <button class="editbtn" onclick="editHandLoan(${idx})">✏️ Edit</button>
         <button class="danger" onclick="del('handLoan', ${idx})">🗑️ Delete</button>
       </div>
